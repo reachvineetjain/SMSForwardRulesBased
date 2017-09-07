@@ -3,19 +3,22 @@
     android:orientation="vertical" android:layout_width="fill_parent"
     android:layout_height="fill_parent" android:id="@+id/MainLayout"
     android:weightSum="1"
-    android:background="#ffcecbff">
+    android:background="@android:color/white">
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceMedium"
+        android:textColor="@android:color/black"
         android:text="SMS Inbox"
         android:id="@+id/textView"
         android:layout_gravity="center_horizontal" />
 
-    <ListView android:id="@+id/SMSList"
-        android:layout_height="389dp"
+    <ListView
+        android:id="@+id/SMSList"
         android:layout_width="match_parent"
+        android:textColor="@android:color/black"
+        android:layout_height="389dp"
         android:layout_margin="5dp"
         android:layout_weight="0.79" />
 
