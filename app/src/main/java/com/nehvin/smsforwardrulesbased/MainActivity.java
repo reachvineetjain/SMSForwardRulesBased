@@ -21,11 +21,11 @@ public class MainActivity extends AppCompatActivity {
         Intent intent = new Intent(MainActivity.this, ReceiveSmsActivity.class);
         startActivity(intent);
     }
-//
-//    public void goToCompose(View view) {
-//        Intent intent = new Intent(MainActivity.this, SendSmsActivity.class);
-//        startActivity(intent);
-//    }
+
+    public void goToCompose(View view) {
+        Intent intent = new Intent(MainActivity.this, SendSmsActivity.class);
+        startActivity(intent);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

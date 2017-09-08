@@ -22,6 +22,7 @@ import com.nehvin.smsforwardrulesbased.data.MessageSenderDBHelper;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Locale;
 
 public class ReceiveSmsActivity extends Activity implements OnItemClickListener {
 
@@ -70,44 +71,62 @@ public class ReceiveSmsActivity extends Activity implements OnItemClickListener 
 
 
     public void refreshSmsInbox() {
-        ContentResolver contentResolver = getContentResolver();
-        Cursor smsInboxCursor = contentResolver.query(Uri.parse("content://sms/inbox"), null, null,
-                null, null);
 
-        int indexBody = smsInboxCursor.getColumnIndex("body");
-        int indexAddress = smsInboxCursor.getColumnIndex("address");
-        int timeMillis = smsInboxCursor.getColumnIndex("date");
-        SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy HH:mm");
-        Uri lookupUri = null;
-        Cursor cursor = null;
-        String address;
-        String senderPhoneBook;
-        String messageBody;
-        String date_ins;
-        if (indexBody < 0 || !smsInboxCursor.moveToFirst())
-            return;
-        smsMessageAdapter.clear();
-        do {
-            address = smsInboxCursor.getString(indexAddress);
-            senderPhoneBook = address;
-            messageBody = smsInboxCursor.getString(indexBody);
-            date_ins = format.format(new Date(smsInboxCursor.getLong(timeMillis)));
-            lookupUri = Uri.withAppendedPath(ContactsContract.PhoneLookup.CONTENT_FILTER_URI,
-                    Uri.encode(senderPhoneBook));
-            cursor = getBaseContext().getContentResolver().query(lookupUri,
-                    new String[]{ContactsContract.PhoneLookup.DISPLAY_NAME},null,null,null);
-            if(cursor != null && cursor.getCount() == 1 && cursor.moveToFirst())
-                senderPhoneBook = (cursor.getString(cursor.getColumnIndex(ContactsContract.PhoneLookup.DISPLAY_NAME)));
+        Cursor smsInboxCursor = null;
+        try {
+            ContentResolver contentResolver = getContentResolver();
+            smsInboxCursor = contentResolver.query(Uri.parse("content://sms/inbox"), null, null,
+                    null, null);
 
-            SMSDetails smsDetails = new SMSDetails(address, senderPhoneBook, messageBody, date_ins);
-            long i = updateSenderInDB(smsDetails);
-            Log.i(TAG, "refreshSmsInbox: no of records updated"+i);
+            if (smsInboxCursor != null ) {
+                int indexBody = smsInboxCursor.getColumnIndex("body");
+                int indexAddress = smsInboxCursor.getColumnIndex("address");
+                int timeMillis = smsInboxCursor.getColumnIndex("date");
+                SimpleDateFormat format = new SimpleDateFormat("dd/MMM/yyyy HH:mm", Locale.getDefault());
+                Uri lookupUri = null;
+                Cursor cursor = null;
+                String address;
+                String senderPhoneBook;
+                String messageBody;
+                String date_ins;
+                if (indexBody < 0 || !smsInboxCursor.moveToFirst())
+                    return;
+                smsMessageAdapter.clear();
+                do {
+                    address = smsInboxCursor.getString(indexAddress);
+                    senderPhoneBook = address;
+                    messageBody = smsInboxCursor.getString(indexBody);
+                    date_ins = format.format(new Date(smsInboxCursor.getLong(timeMillis)));
+                    try {
+                        lookupUri = Uri.withAppendedPath(ContactsContract.PhoneLookup.CONTENT_FILTER_URI,
+                                Uri.encode(senderPhoneBook));
+                        cursor = getBaseContext().getContentResolver().query(lookupUri,
+                                new String[]{ContactsContract.PhoneLookup.DISPLAY_NAME},null,null,null);
+                        if(cursor != null && cursor.getCount() == 1 && cursor.moveToFirst())
+                            senderPhoneBook = (cursor.getString(cursor.getColumnIndex(ContactsContract.PhoneLookup.DISPLAY_NAME)));
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    } finally {
+                        if (cursor != null)
+                            cursor.close();
+                    }
 
-//            String str = senderPhoneBook
-//                    +"\n" + format.format(new Date(smsInboxCursor.getLong(timeMillis)))
-//                    +"\n" + smsInboxCursor.getString(indexBody);
-            smsMessageAdapter.add(smsDetails);
-        } while (smsInboxCursor.moveToNext());
+                    SMSDetails smsDetails = new SMSDetails(address, senderPhoneBook, messageBody, date_ins);
+                    long i = updateSenderInDB(smsDetails);
+                    Log.i(TAG, "refreshSmsInbox: no of records updated"+i);
+
+        //            String str = senderPhoneBook
+        //                    +"\n" + format.format(new Date(smsInboxCursor.getLong(timeMillis)))
+        //                    +"\n" + smsInboxCursor.getString(indexBody);
+                    smsMessageAdapter.add(smsDetails);
+                } while (smsInboxCursor.moveToNext());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if(smsInboxCursor != null)
+                smsInboxCursor.close();
+        }
     }
 
 //    public void updateList(final String smsMessage) {
@@ -119,12 +138,12 @@ public class ReceiveSmsActivity extends Activity implements OnItemClickListener 
     public void updateList(SMSDetails smsDetails) {
 
         if (smsDetails != null) {
-            StringBuilder smsMessageStr = new StringBuilder();
-            smsMessageStr.append(smsDetails.getSender_details());
-            smsMessageStr.append("\n");
-            smsMessageStr.append(smsDetails.getDate_inserted());
-            smsMessageStr.append("\n");
-            smsMessageStr.append(smsDetails.getMessage());
+//            StringBuilder smsMessageStr = new StringBuilder();
+//            smsMessageStr.append(smsDetails.getSender_details());
+//            smsMessageStr.append("\n");
+//            smsMessageStr.append(smsDetails.getDate_inserted());
+//            smsMessageStr.append("\n");
+//            smsMessageStr.append(smsDetails.getMessage());
 
             long i = updateSenderInDB(smsDetails);
             Log.i(TAG, "updateList: no of records updated"+i);

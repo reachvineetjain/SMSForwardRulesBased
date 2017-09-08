@@ -81,4 +81,13 @@ public class SMSDetails {
     public void setMessage(String message) {
         this.message = message;
     }
+
+    @Override
+    public String toString() {
+        return "SMS Details{" +
+                "Date :'" + date_inserted + '\'' +
+                ", Sender Details :'" + sender_details + '\'' +
+                ", Message :'" + message + '\'' +
+                '}';
+    }
 }

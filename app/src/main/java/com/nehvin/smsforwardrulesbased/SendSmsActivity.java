@@ -19,6 +19,7 @@ public class SendSmsActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_send_sms);
+
         sendSMSBtn = (Button) findViewById(R.id.btnSendSMS);
         toPhoneNumberET = (EditText) findViewById(R.id.editTextPhoneNo);
         smsMessageET = (EditText) findViewById(R.id.editTextSMS);
