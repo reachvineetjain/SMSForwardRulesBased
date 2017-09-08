@@ -13,7 +13,6 @@ import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
-import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -27,14 +26,15 @@ import java.util.Date;
 public class ReceiveSmsActivity extends Activity implements OnItemClickListener {
 
     private static ReceiveSmsActivity inst;
-    ArrayList<String> smsMessagesList = new ArrayList<String>();
+    ArrayList<SMSDetails> smsMessagesList = new ArrayList<SMSDetails>();
     ListView smsListView;
-    ArrayAdapter arrayAdapter;
-    ArrayList<String> senderList = new ArrayList<>();
+    SMSMessageAdapter smsMessageAdapter;
+//    ArrayList<SMSDetails> senderList = new ArrayList<>();
     private SQLiteDatabase mDb;
     private static final String TAG = ReceiveSmsActivity.class.getSimpleName();
 
     public static ReceiveSmsActivity instance() {
+
         return inst;
     }
 
@@ -48,64 +48,26 @@ public class ReceiveSmsActivity extends Activity implements OnItemClickListener 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_receive_sms);
-        smsListView = (ListView) findViewById(R.id.SMSList);
 
-        arrayAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, smsMessagesList);
-        smsListView.setAdapter(arrayAdapter);
+        smsMessageAdapter = new SMSMessageAdapter(getBaseContext(), smsMessagesList);
+        smsListView = (ListView)findViewById(R.id.SMSList);
+        smsListView.setAdapter(smsMessageAdapter);
+
+//        smsListView = (ListView) findViewById(R.id.SMSList);
+//
+//        arrayAdapter = new ArrayAdapter<SMSDetails>(this, R.layout.sms_detail_text,
+//                R.id.sms_details, smsMessagesList);
+//        smsListView.setAdapter(arrayAdapter);
         smsListView.setOnItemClickListener(this);
+
+
         MessageSenderDBHelper dbHelper = new MessageSenderDBHelper(this);
         mDb = dbHelper.getWritableDatabase();
-        getCurrentList();
+//        getCurrentList();
 
         refreshSmsInbox();
     }
 
-
-    private ArrayList<String> getCurrentList()
-    {
-        senderList.clear();
-
-        Cursor cursor = mDb.query(MessageSenderContract.MessageSenderEntry.TABLE_NAME,
-                new String[]{MessageSenderContract.MessageSenderEntry.COLUMN_SENDER},
-                null,
-                null,
-                null,
-                null,
-                MessageSenderContract.MessageSenderEntry.COLUMN_SENDER);
-
-        int colSenderIndex = cursor.getColumnIndex(MessageSenderContract.MessageSenderEntry.COLUMN_SENDER);
-
-
-        if(cursor != null && cursor.getCount() > 0 && cursor.moveToFirst())
-        {
-            do {
-                senderList.add(cursor.getString(colSenderIndex));
-                Log.i(TAG, "getCurrentList: "+cursor.getString(colSenderIndex));
-            }while (cursor.moveToNext());
-        }
-
-        return senderList;
-    }
-
-    private long updateSenderInDB(SMSDetails smsDetails)
-    {
-        ContentValues cv = new ContentValues();
-        cv.put(MessageSenderContract.MessageSenderEntry.COLUMN_SENDER, smsDetails.getSender());
-        cv.put(MessageSenderContract.MessageSenderEntry.COLUMN_SENDER_DETAILS,
-                smsDetails.getSender_details());
-        long i = 0;
-        try {
-            mDb.beginTransaction();
-            i = mDb.insertWithOnConflict(MessageSenderContract.MessageSenderEntry.TABLE_NAME, null, cv,
-                    SQLiteDatabase.CONFLICT_IGNORE);
-            mDb.setTransactionSuccessful();
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            mDb.endTransaction();
-        }
-        return i;
-    }
 
     public void refreshSmsInbox() {
         ContentResolver contentResolver = getContentResolver();
@@ -118,12 +80,18 @@ public class ReceiveSmsActivity extends Activity implements OnItemClickListener 
         SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy HH:mm");
         Uri lookupUri = null;
         Cursor cursor = null;
+        String address;
+        String senderPhoneBook;
+        String messageBody;
+        String date_ins;
         if (indexBody < 0 || !smsInboxCursor.moveToFirst())
             return;
-        arrayAdapter.clear();
+        smsMessageAdapter.clear();
         do {
-            String address = smsInboxCursor.getString(indexAddress);
-            String senderPhoneBook = address;
+            address = smsInboxCursor.getString(indexAddress);
+            senderPhoneBook = address;
+            messageBody = smsInboxCursor.getString(indexBody);
+            date_ins = format.format(new Date(smsInboxCursor.getLong(timeMillis)));
             lookupUri = Uri.withAppendedPath(ContactsContract.PhoneLookup.CONTENT_FILTER_URI,
                     Uri.encode(senderPhoneBook));
             cursor = getBaseContext().getContentResolver().query(lookupUri,
@@ -131,14 +99,14 @@ public class ReceiveSmsActivity extends Activity implements OnItemClickListener 
             if(cursor != null && cursor.getCount() == 1 && cursor.moveToFirst())
                 senderPhoneBook = (cursor.getString(cursor.getColumnIndex(ContactsContract.PhoneLookup.DISPLAY_NAME)));
 
-            SMSDetails smsDetails = new SMSDetails(address, senderPhoneBook);
+            SMSDetails smsDetails = new SMSDetails(address, senderPhoneBook, messageBody, date_ins);
             long i = updateSenderInDB(smsDetails);
             Log.i(TAG, "refreshSmsInbox: no of records updated"+i);
 
-            String str = senderPhoneBook
-                    +"\n" + format.format(new Date(smsInboxCursor.getLong(timeMillis)))
-                    +"\n" + smsInboxCursor.getString(indexBody);
-            arrayAdapter.add(str);
+//            String str = senderPhoneBook
+//                    +"\n" + format.format(new Date(smsInboxCursor.getLong(timeMillis)))
+//                    +"\n" + smsInboxCursor.getString(indexBody);
+            smsMessageAdapter.add(smsDetails);
         } while (smsInboxCursor.moveToNext());
     }
 
@@ -161,21 +129,40 @@ public class ReceiveSmsActivity extends Activity implements OnItemClickListener 
             long i = updateSenderInDB(smsDetails);
             Log.i(TAG, "updateList: no of records updated"+i);
 
-            arrayAdapter.insert(smsMessageStr.toString(), 0);
-            arrayAdapter.notifyDataSetChanged();
+            smsMessageAdapter.insert(smsDetails, 0);
+            smsMessageAdapter.notifyDataSetChanged();
         }
+    }
+
+    private long updateSenderInDB(SMSDetails smsDetails)
+    {
+        ContentValues cv = new ContentValues();
+        cv.put(MessageSenderContract.MessageSenderEntry.COLUMN_SENDER, smsDetails.getSender());
+        cv.put(MessageSenderContract.MessageSenderEntry.COLUMN_SENDER_DETAILS,
+                smsDetails.getSender_details());
+        long i = 0;
+        try {
+            mDb.beginTransaction();
+            i = mDb.insertWithOnConflict(MessageSenderContract.MessageSenderEntry.TABLE_NAME, null, cv,
+                    SQLiteDatabase.CONFLICT_IGNORE);
+            mDb.setTransactionSuccessful();
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            mDb.endTransaction();
+        }
+        return i;
     }
 
     public void onItemClick(AdapterView<?> parent, View view, int pos, long id) {
         try {
-            String[] smsMessages = smsMessagesList.get(pos).split("\n");
-            String address = smsMessages[0];
-            String smsMessage = "";
-            for (int i = 1; i < smsMessages.length; ++i) {
-                smsMessage += smsMessages[i];
-            }
-
-            String smsMessageStr = address + "\n";
+            SMSDetails smsMessages = smsMessagesList.get(pos);
+            String address = smsMessages.getSender_details();
+            String smsMessage = smsMessages.getMessage();
+//            for (int i = 1; i < smsMessages.length; ++i) {
+//                smsMessage += smsMessages[i];
+//            }
+            String smsMessageStr = address + "\n\n";
             smsMessageStr += smsMessage;
             Toast.makeText(this, smsMessageStr, Toast.LENGTH_SHORT).show();
         } catch (Exception e) {

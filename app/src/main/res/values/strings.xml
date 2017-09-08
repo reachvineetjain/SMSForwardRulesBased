@@ -2,4 +2,10 @@
     <string name="app_name">SMS Forward Rules Based</string>
     <string name="action_settings">Settings</string>
     <string name="androidSMS">SMS App</string>
+
+    <string name="not_sent">Not Sent</string>
+    <string name="message">Message</string>
+    <string name="from">From :</string>
+    <string name="sms_inbox">SMS Inbox</string>
+
 </resources>
