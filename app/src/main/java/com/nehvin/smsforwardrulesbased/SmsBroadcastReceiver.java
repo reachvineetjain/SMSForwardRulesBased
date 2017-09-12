@@ -38,7 +38,7 @@ public class SmsBroadcastReceiver extends BroadcastReceiver {
 
 //                SmsMessage smsMessage = SmsMessage.createFromPdu((byte[]) sms[i]);
 
-                String smsBody = smsMessage.getMessageBody().toString();
+                String smsBody = smsMessage.getMessageBody();
                 String address = smsMessage.getOriginatingAddress();
                 long timeMillis = smsMessage.getTimestampMillis();
 

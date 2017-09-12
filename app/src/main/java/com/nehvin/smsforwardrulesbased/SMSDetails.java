@@ -29,10 +29,12 @@ public class SMSDetails {
         this.date_inserted = date_inserted;
     }
 
-    public SMSDetails(String sender, String sender_details) {
+    public SMSDetails(String sender, String sender_details, String blocked) {
         this.sender = sender;
         this.sender_details = sender_details;
+        this.blocked = blocked;
     }
+
 
     public String getId() {
         return id;

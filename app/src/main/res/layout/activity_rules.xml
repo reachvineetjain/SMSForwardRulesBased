@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:id="@+id/RulesLayout"
+    android:weightSum="1"
+    android:background="@android:color/background_light"
+    tools:context="com.nehvin.smsforwardrulesbased.RulesActivity">
+
+
+    <TextView
+        android:id="@+id/infoText_1"
+        android:layout_alignParentTop="true"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="15sp"
+        android:textAlignment="center"
+        android:textColor="@android:color/black"
+        android:text="@string/info_text_label_1" />
+
+    <TextView
+        android:id="@+id/infoText_2"
+        android:layout_below="@+id/infoText_1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="12sp"
+        android:textColor="@android:color/black"
+        android:text="@string/info_text_1" />
+
+    <ListView
+        android:id="@+id/senderList"
+        android:layout_below="@+id/infoText_2"
+        android:layout_above="@+id/textView4"
+        android:layout_width="match_parent"
+        android:divider="@android:color/holo_green_dark"
+        android:dividerHeight="2dp"
+        android:layout_height="225dp"
+        android:layout_margin="2dp"
+        />
+
+    <TextView
+        android:id="@+id/textView4"
+        android:layout_above="@+id/autoComplainRadioGroup"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor="@android:color/black"
+        android:text="@string/info_text_2"/>
+
+
+    <RadioGroup
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/autoComplainRadioGroup"
+        android:orientation="horizontal"
+        android:layout_above="@+id/button"
+        android:weightSum="1">
+
+        <RadioButton
+            android:id="@+id/yesRadioButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_weight="0.50"
+            android:textAllCaps="false"
+            android:textColor="@android:color/black"
+            android:text="@string/yes"
+             />
+
+        <RadioButton
+            android:id="@+id/noRadioButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_weight="0.50"
+            android:checked="true"
+            android:text="@string/no"
+            android:textAllCaps="false"
+            android:textColor="@android:color/black" />
+
+    </RadioGroup>
+
+
+    <Button
+        android:id="@+id/button"
+        android:layout_marginBottom="0dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:textSize="15sp"
+        android:textAllCaps="false"
+        android:text="@string/save_rules_and_block_preferences" />
+
+</RelativeLayout>
