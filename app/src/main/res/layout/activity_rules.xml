@@ -55,8 +55,8 @@
         android:layout_height="wrap_content"
         android:id="@+id/autoComplainRadioGroup"
         android:orientation="horizontal"
-        android:layout_above="@+id/button"
-        android:weightSum="1">
+        android:layout_above="@+id/saveRulesButton"
+        android:weightSum="1" >
 
         <RadioButton
             android:id="@+id/yesRadioButton"
@@ -84,13 +84,14 @@
 
 
     <Button
-        android:id="@+id/button"
+        android:id="@+id/saveRulesButton"
         android:layout_marginBottom="0dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:textSize="15sp"
         android:textAllCaps="false"
+        android:onClick="saveRules"
         android:text="@string/save_rules_and_block_preferences" />
 
 </RelativeLayout>

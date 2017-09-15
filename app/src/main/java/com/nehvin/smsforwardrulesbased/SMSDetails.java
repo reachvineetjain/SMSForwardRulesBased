@@ -87,9 +87,10 @@ public class SMSDetails {
     @Override
     public String toString() {
         return "SMS Details{" +
-                "Date :'" + date_inserted + '\'' +
+                " Date :'" + date_inserted + '\'' +
                 ", Sender Details :'" + sender_details + '\'' +
                 ", Message :'" + message + '\'' +
+                ", Blocked : " + blocked + '\'' +
                 '}';
     }
 }
