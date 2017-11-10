@@ -12,9 +12,9 @@
     <string translatable="true" name="rules">Set/Unset Rules</string>
     <string translatable="true" name="info_text_label_1">List of SMS Senders</string>
     <string translatable="true" name="info_text_1">Below is a list of SMS Senders. Use the Checkbox to mark of the senders
-        to be blocked. Once done select if you want to automatically raise a complaint with TRAI</string>
+        to be blocked. Once done, select if you wish to automatically raise a complaint with TRAI</string>
     <string translatable="true" name="info_text_2">Do you automatically want to raise a complaint to TRAI ?
-        This will incur SMS charges</string>
+        </string>
     <string name="no">No</string>
     <string name="yes">Yes</string>
     <string name="save_rules_and_block_preferences">Save rules and block/unblock preferences</string>

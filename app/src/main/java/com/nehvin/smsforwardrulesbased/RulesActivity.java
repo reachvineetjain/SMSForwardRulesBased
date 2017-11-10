@@ -1,20 +1,20 @@
 package com.nehvin.smsforwardrulesbased;
 
+import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.ListView;
-import android.widget.Toast;
 
 import com.nehvin.smsforwardrulesbased.data.MessageSenderContract;
 import com.nehvin.smsforwardrulesbased.data.MessageSenderDBHelper;
 
 import java.util.ArrayList;
 import java.util.Hashtable;
+import java.util.Iterator;
 
 public class RulesActivity extends AppCompatActivity {
 
@@ -51,42 +51,6 @@ public class RulesActivity extends AppCompatActivity {
         senderListView = (ListView)findViewById(R.id.senderList);
         senderListView.setAdapter(senderDetailAdapter);
 
-        senderListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
-                Log.i(TAG, "onItemClick: adapterView.toString() : "+ adapterView.toString());
-                Log.i(TAG, "onItemClick: view.toString() : "+view.toString());
-                Log.i(TAG, "onItemClick: position : " + position);
-                Log.i(TAG, "onItemClick: id :" + id);
-                Toast.makeText(RulesActivity.this, "adapterView.toString() :"+adapterView.toString(), Toast.LENGTH_SHORT).show();
-            }
-        });
-
-        senderListView.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> adapterView, View view, int position, long id) {
-                Log.i(TAG, "onItemClick: adapterView.toString() : "+ adapterView.toString());
-                Log.i(TAG, "onItemClick: view.toString() : "+view.toString());
-                Log.i(TAG, "onItemClick: position : " + position);
-                Log.i(TAG, "onItemClick: id :" + id);
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> adapterView) {
-                Log.i(TAG, "onItemClick: adapterView.toString() : "+ adapterView.toString());
-            }
-        });
-
-
-
-// The below gives an exception and not to be used with ListView
-//        senderListView.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                Log.i(TAG, "onClick: view.toString() : "+view.toString());
-//            }
-//        });
-
     }
 
     public ArrayList<SMSDetails> getSenderDetails (){
@@ -96,6 +60,7 @@ public class RulesActivity extends AppCompatActivity {
         Cursor cursor = mDb.query(MessageSenderContract.MessageSenderEntry.TABLE_NAME,
                 new String[] {
                         MessageSenderContract.MessageSenderEntry._ID,
+                        MessageSenderContract.MessageSenderEntry.COLUMN_SENDER,
                         MessageSenderContract.MessageSenderEntry.COLUMN_SENDER_DETAILS,
                         MessageSenderContract.MessageSenderEntry.COLUMN_BLOCKED
                 },
@@ -104,15 +69,19 @@ public class RulesActivity extends AppCompatActivity {
         int senderDetailIndex;
         int senderBlockedIndex;
         int idIndex;
+        int sender;
 
         if (cursor != null && cursor.getCount() > 0 && cursor.moveToFirst()) {
+
             idIndex = cursor.getColumnIndex(MessageSenderContract.MessageSenderEntry._ID);
             senderDetailIndex = cursor.getColumnIndex(MessageSenderContract.MessageSenderEntry.COLUMN_SENDER_DETAILS);
             senderBlockedIndex = cursor.getColumnIndex(MessageSenderContract.MessageSenderEntry.COLUMN_BLOCKED);
+            sender = cursor.getColumnIndex(MessageSenderContract.MessageSenderEntry.COLUMN_SENDER);
 
             do{
                 senderDetails.add(new SMSDetails(
-                        cursor.getString(idIndex),null, null, cursor.getString(senderDetailIndex), cursor.getString(senderBlockedIndex), null));
+                        cursor.getString(idIndex),null, cursor.getString(sender),
+                        cursor.getString(senderDetailIndex), cursor.getString(senderBlockedIndex), null));
             }while(cursor.moveToNext());
         }
 
@@ -123,5 +92,22 @@ public class RulesActivity extends AppCompatActivity {
     public void saveRules(View view) {
 
         Log.i(TAG, "saveRules: "+selectedSenderMessageList.toString());
+
+        if(selectedSenderMessageList.size()>0) {
+//            String whereArgs[] = new String[selectedSenderMessageList.size()];
+            ArrayList<String> whereArgs = new ArrayList<>();
+            ContentValues cv = new ContentValues(selectedSenderMessageList.size());
+
+            Iterator it = selectedSenderMessageList.keySet().iterator();
+            while (it.hasNext()) {
+                String id = (String) it.next();
+                SMSDetails smsDetails = (SMSDetails)selectedSenderMessageList.get(id);
+                cv.put(MessageSenderContract.MessageSenderEntry.COLUMN_BLOCKED, smsDetails.getBlocked());
+                whereArgs.add(smsDetails.getId());
+            }
+
+            mDb.update(MessageSenderContract.MessageSenderEntry.TABLE_NAME, cv, "_id=?", whereArgs.toArray(new String[0]));
+        }
+        selectedSenderMessageList.clear();
     }
 }

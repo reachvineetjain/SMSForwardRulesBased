@@ -45,7 +45,10 @@ public class SenderDetailAdapter extends ArrayAdapter<SMSDetails> {
 
         cbk.setTag(senderDetails);
 
-        cbk.setText(senderDetails.getSender_details());
+        if(senderDetails.getSender_details().equalsIgnoreCase(senderDetails.getSender()))
+            cbk.setText(senderDetails.getSender_details());
+        else
+            cbk.setText(senderDetails.getSender_details()+ "("+senderDetails.getSender()+")");
 
         if("0".equalsIgnoreCase(senderDetails.getBlocked())) {
             cbk.setChecked(false);

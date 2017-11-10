@@ -50,6 +50,7 @@ public class MainActivity extends AppCompatActivity {
                     && (ContextCompat.checkSelfPermission(this, Manifest.permission.RECEIVE_SMS) != PackageManager.PERMISSION_GRANTED)
                     && (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_CONTACTS) != PackageManager.PERMISSION_GRANTED)
                     && (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED)
+                    && (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED)
                     ){
                 ActivityCompat.requestPermissions(this, new String[]
                         {
@@ -57,7 +58,8 @@ public class MainActivity extends AppCompatActivity {
                                 Manifest.permission.SEND_SMS,
                                 Manifest.permission.RECEIVE_SMS,
                                 Manifest.permission.READ_CONTACTS,
-                                Manifest.permission.WRITE_CONTACTS
+                                Manifest.permission.WRITE_CONTACTS,
+                                Manifest.permission.READ_PHONE_STATE
                         }, 222);
             }
             else {
@@ -80,6 +82,7 @@ public class MainActivity extends AppCompatActivity {
                         && grantResults[2] == PackageManager.PERMISSION_GRANTED
                         && grantResults[3] == PackageManager.PERMISSION_GRANTED
                         && grantResults[4] == PackageManager.PERMISSION_GRANTED
+                        && grantResults[5] == PackageManager.PERMISSION_GRANTED
                 )){
             // permission granted
 //            smsrec = new SMSReceive(this);
